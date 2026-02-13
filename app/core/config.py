@@ -24,6 +24,11 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: AnyUrl
+    DATABASE_URL_TEST: AnyUrl | None = Field(
+        default=None,
+        alias="DATABASE_URL_TEST",
+        description="Test database URL (defaults to postgresql+asyncpg://costa_user:supersecretpassword@localhost:5433/costadb_test if not set)",
+    )
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = Field(default_factory=list)

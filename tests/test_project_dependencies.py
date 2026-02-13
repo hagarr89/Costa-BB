@@ -12,7 +12,8 @@ import uuid
 
 import pytest
 from fastapi import APIRouter, Depends, FastAPI
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
+
 
 from app.deps.project import (
     get_project_id_from_header,
@@ -43,11 +44,16 @@ def test_app() -> FastAPI:
     return app
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def client(test_app: FastAPI) -> AsyncClient:
-    """Create a test HTTP client."""
-    async with AsyncClient(app=test_app, base_url="http://test") as client:
+    transport = ASGITransport(app=test_app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+    ) as client:
         yield client
+
 
 
 class TestProjectIDFromHeader:

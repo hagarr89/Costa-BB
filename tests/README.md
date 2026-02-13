@@ -82,12 +82,43 @@ Tests for SQLAlchemy model mixins:
 
 ## Test Database
 
-Tests use an in-memory SQLite database by default for fast execution. To use PostgreSQL:
+Tests use PostgreSQL for full compatibility with production models (UUID, CITEXT, JSONB, etc.).
+
+### Setup Test Database
+
+#### Option 1: Using Docker Compose (Recommended)
 
 ```bash
-export TEST_DATABASE_URL="postgresql+asyncpg://user:pass@localhost/test_db"
+# Start test database
+docker-compose -f docker-compose.test.yml up -d
+
+# Run tests
+pytest
+
+# Stop test database
+docker-compose -f docker-compose.test.yml down
+```
+
+#### Option 2: Manual PostgreSQL Setup
+
+1. Create test database:
+```sql
+CREATE DATABASE costadb_test;
+CREATE USER costa_user WITH PASSWORD 'supersecretpassword';
+GRANT ALL PRIVILEGES ON DATABASE costadb_test TO costa_user;
+```
+
+2. Set environment variable (optional, uses default if not set):
+```bash
+export COSTA_DATABASE_URL_TEST="postgresql+asyncpg://costa_user:supersecretpassword@localhost:5433/costadb_test"
 pytest
 ```
+
+### Database Configuration
+
+The test database URL is configured in `app/core/config.py`:
+- Default: `postgresql+asyncpg://costa_user:supersecretpassword@localhost:5433/costadb_test`
+- Override: Set `COSTA_DATABASE_URL_TEST` environment variable
 
 ## Fixtures
 
@@ -124,7 +155,8 @@ The test suite includes example models that demonstrate proper usage:
 ## Continuous Integration
 
 Tests are designed to run in CI environments:
-- Fast execution with in-memory SQLite
-- No external dependencies required
-- Deterministic results
+- PostgreSQL database required (use docker-compose.test.yml)
+- Full production model compatibility
+- Deterministic results with transaction rollback
 - Parallel execution support
+- Session-scoped engine for performance

@@ -7,6 +7,7 @@ for use with multi-tenant repositories.
 
 import uuid
 from typing import Annotated
+from fastapi import Request
 
 from fastapi import Header, HTTPException, Query
 
@@ -53,9 +54,24 @@ async def get_project_id_from_header(
         )
 
 
-async def get_project_id_from_query(
-    project_id: Annotated[str | None, Query(alias="project_id")] = None,
-) -> uuid.UUID:
+async def get_project_id_from_query(request: Request) -> uuid.UUID:
+    values = request.query_params.getlist("project_id")
+
+    if not values or not values[0]:
+        raise HTTPException(
+            status_code=400,
+            detail="project_id query parameter is required",
+        )
+
+    raw = values[0]
+
+    try:
+        return uuid.UUID(raw)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid project ID format: {raw}",
+        )
     """
     Extract project_id from query parameter.
 
