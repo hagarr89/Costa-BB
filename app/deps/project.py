@@ -72,43 +72,6 @@ async def get_project_id_from_query(request: Request) -> uuid.UUID:
             status_code=400,
             detail=f"Invalid project ID format: {raw}",
         )
-    """
-    Extract project_id from query parameter.
-
-    Alternative to header-based approach, useful for GET requests
-    where project context is passed as query parameter.
-
-    Args:
-        project_id: Project ID from query parameter
-
-    Returns:
-        UUID of the project
-
-    Raises:
-        HTTPException: If parameter is missing or invalid
-
-    Example:
-        ```python
-        @router.get("/rfqs")
-        async def list_rfqs(
-            project_id: uuid.UUID = Depends(get_project_id_from_query)
-        ):
-            # Use project_id with repository
-        ```
-    """
-    if not project_id:
-        raise HTTPException(
-            status_code=400,
-            detail="project_id query parameter is required",
-        )
-
-    try:
-        return uuid.UUID(project_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid project ID format: {project_id}",
-        )
 
 
 async def get_project_id_from_path(
