@@ -13,7 +13,7 @@ from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-from app.deps.context import ProjectContext
+from app.deps.project import ProjectContext
 
 logger = logging.getLogger(__name__)
 

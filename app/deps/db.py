@@ -38,7 +38,7 @@ async def _get_db_session_context() -> AsyncGenerator[AsyncSession, None]:
             # Commit if no exception occurred
             await session.commit()
     except SQLAlchemyError as e:
-        logger.error(f"Database error: {str(e)}", exc_info=True)
+        logger.error("Database error: %s", str(e), exc_info=True)
         if session:
             await session.rollback()
         raise HTTPException(
@@ -46,20 +46,25 @@ async def _get_db_session_context() -> AsyncGenerator[AsyncSession, None]:
             detail="Database operation failed. Please try again later.",
         ) from e
     except Exception as e:
-        logger.error(f"Unexpected error in database session: {str(e)}", exc_info=True)
+        logger.error("Unexpected error in database session: %s", str(e), exc_info=True)
         if session:
             await session.rollback()
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred. Please try again later.",
         ) from e
+    except BaseException:
+        # CancelledError, SystemExit, etc.: rollback and re-raise (no 500)
+        if session:
+            await session.rollback()
+        raise
     finally:
         # Ensure session is closed
         if session:
             try:
                 await session.close()
             except Exception as e:
-                logger.warning(f"Error closing session: {str(e)}", exc_info=True)
+                logger.warning("Error closing session: %s", str(e), exc_info=True)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:

@@ -12,7 +12,7 @@ from fastapi import HTTPException, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.deps.context import ProjectContext
+from app.deps.project import ProjectContext
 from app.deps.repository import (
     get_repository_factory,
     create_repository_dependency,

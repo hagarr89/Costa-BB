@@ -137,6 +137,24 @@ class TestGetDbSessionContext:
             # Verify close was called in finally block
             mock_session.close.assert_called_once()
 
+    @pytest.mark.asyncio
+    async def test_cancellation_rollback_and_reraise(self):
+        """Should rollback and re-raise on BaseException (e.g. CancelledError)."""
+        import asyncio
+        mock_session = AsyncMock(spec=AsyncSession)
+        mock_session.commit = AsyncMock()
+        mock_session.rollback = AsyncMock()
+        mock_session.close = AsyncMock()
+        mock_session.commit.side_effect = asyncio.CancelledError()
+        with patch("app.deps.db.AsyncSessionLocal") as mock_session_local:
+            mock_session_local.return_value.__aenter__.return_value = mock_session
+            mock_session_local.return_value.__aexit__.return_value = None
+            with pytest.raises(asyncio.CancelledError):
+                async with _get_db_session_context() as session:
+                    pass
+            mock_session.rollback.assert_called_once()
+            mock_session.close.assert_called_once()
+
 
 class TestGetDbSession:
     """Tests for get_db_session FastAPI dependency."""

@@ -2,7 +2,7 @@
 Tests for project context dependency injection utilities.
 
 Tests cover ProjectContext, get_project_context, and get_project_id
-from app/deps/context.py.
+from app/deps/project.py.
 """
 
 import uuid
@@ -10,7 +10,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from fastapi import HTTPException, Request
 
-from app.deps.context import ProjectContext, get_project_context, get_project_id
+from app.deps.project import ProjectContext, get_project_context, get_project_id
 
 
 class TestProjectContext:
@@ -65,8 +65,8 @@ class TestGetProjectContext:
         assert result.project_id == project_id
 
     @pytest.mark.asyncio
-    async def test_raises_500_when_project_context_missing(self):
-        """Should raise HTTPException 500 when project_context not in request.state."""
+    async def test_raises_400_when_project_context_missing(self):
+        """Should raise HTTPException 400 when project_context not in request.state."""
         request = MagicMock(spec=Request)
         # Create a state object without project_context attribute
         request.state = MagicMock()
@@ -77,8 +77,8 @@ class TestGetProjectContext:
             with pytest.raises(HTTPException) as exc_info:
                 await get_project_context(request)
         
-        assert exc_info.value.status_code == 500
-        assert "Project context not available" in exc_info.value.detail
+        assert exc_info.value.status_code == 400
+        assert "Project ID is required" in exc_info.value.detail
 
     @pytest.mark.asyncio
     async def test_raises_500_when_project_context_not_instance(self):
@@ -142,7 +142,7 @@ class TestGetProjectId:
         request = MagicMock(spec=Request)
         request.state.project_context = context
         
-        with patch("app.deps.context.get_project_context", return_value=context):
+        with patch("app.deps.project.get_project_context", return_value=context):
             result = await get_project_id(request)
         
         assert result == project_id
@@ -153,7 +153,7 @@ class TestGetProjectId:
         request = MagicMock(spec=Request)
         http_exception = HTTPException(status_code=500, detail="Context error")
         
-        with patch("app.deps.context.get_project_context", side_effect=http_exception):
+        with patch("app.deps.project.get_project_context", side_effect=http_exception):
             with pytest.raises(HTTPException) as exc_info:
                 await get_project_id(request)
             

@@ -1,8 +1,10 @@
 """FastAPI dependencies for database, project context, and repository factories."""
 
-from app.deps.context import ProjectContext, get_project_context, get_project_id
 from app.deps.db import get_db_session
 from app.deps.project import (
+    ProjectContext,
+    get_project_context,
+    get_project_id,
     get_project_id_from_header,
     get_project_id_from_path,
     get_project_id_from_query,
