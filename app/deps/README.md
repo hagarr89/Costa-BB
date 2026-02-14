@@ -68,7 +68,7 @@ The middleware extracts `project_id` from:
 
 ```python
 from fastapi import Depends
-from app.deps.context import get_project_context, get_project_id, ProjectContext
+from app.deps.project import get_project_context, get_project_id, ProjectContext
 
 # Get full context
 @router.get("/items")
@@ -157,7 +157,7 @@ Here's a complete example combining all three utilities:
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps.db import get_db_session
-from app.deps.context import get_project_id
+from app.deps.project import get_project_id
 from app.deps.repository import get_repository_factory
 from app.repositories.rfq import RFQRepository
 
@@ -243,7 +243,7 @@ def override_get_db_session():
     return AsyncMock()
 
 def override_get_project_context():
-    from app.deps.context import ProjectContext
+    from app.deps.project import ProjectContext
     return ProjectContext(project_id=uuid.UUID("..."))
 
 app.dependency_overrides[get_db_session] = override_get_db_session

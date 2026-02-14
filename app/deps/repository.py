@@ -12,7 +12,7 @@ from typing import Callable, Generic, Type, TypeVar
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.deps.context import ProjectContext, get_project_context
+from app.deps.project import ProjectContext, get_project_context
 from app.deps.db import get_db_session
 from app.repositories.base import BaseRepository
 

@@ -16,7 +16,7 @@ from app.middleware.project_context import (
     ProjectContextMiddleware,
     create_project_context_middleware,
 )
-from app.deps.context import ProjectContext
+from app.deps.project import ProjectContext
 
 
 class TestProjectContextMiddleware:
